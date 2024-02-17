@@ -4,6 +4,10 @@
 
 A simple node.js website to upload and download file.
 
+## Requirements
+
+- Node.js
+
 ## Installation
 
 ```bash
