@@ -4,9 +4,12 @@ const express = require("express");
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
+const https = require("https");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+
+var privateKey = fs.readFileSync(__dirname + "/ssl/private.key");
+var certificate = fs.readFileSync(__dirname + "/ssl/certificate.crt");
 
 // Set up multer for file upload
 const storage = multer.diskStorage({
@@ -63,6 +66,6 @@ function getFileExtension(filename) {
     return filename.split(".").pop();
 }
 
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
+var credentials = { key: privateKey, cert: certificate };
+var httpsServer = https.createServer(credentials, app);
+httpsServer.listen(443);

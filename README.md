@@ -17,6 +17,8 @@ npm install
 node index.js
 ```
 
+> server.js is the version with SSL support, you can use it if you have a SSL certificate.
+
 ## Credits
 
 Made by [Elvis Mao](https://elvismao.com). Quicksand font by [Andrew Paglinawan](https://www.fontsquirrel.com/fonts/quicksand).
