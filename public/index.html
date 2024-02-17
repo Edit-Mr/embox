@@ -1,0 +1,45 @@
+<!-- @format -->
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>File Sharing App</title>
+    </head>
+    <body>
+        <h1>Files in 'box' folder:</h1>
+        <ul id="fileList"></ul>
+        <form action="/upload" method="post" enctype="multipart/form-data">
+            <input type="file" name="file" />
+            <button type="submit">Upload File</button>
+        </form>
+
+        <script>
+            // Fetch file list and render on the page
+            fetch("/list")
+                .then(response => response.json())
+                .then(files => {
+                    const fileList = document.getElementById("fileList");
+                    fileList.innerHTML = files
+                        .map(
+                            file => `
+          <li>
+            <img src="/icons/${getFileExtension(
+                file.extension
+            )}" style="width: 20px; height: 20px;" />
+            <a href="/files/${file.file}" download>${file.file}</a>
+          </li>
+        `
+                        )
+                        .join("");
+                })
+                .catch(error => console.error("Error fetching files:", error));
+
+            // Function to get file extension
+            function getFileExtension(filename) {
+                return filename.split(".").pop() + ".png";
+            }
+        </script>
+    </body>
+</html>

@@ -1,0 +1,28 @@
+{
+  "name": "embox",
+  "version": "1.0.0",
+  "description": "A simple node.js website to upload and downlaod file.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Edit-Mr/embox.git"
+  },
+  "keywords": [
+    "website",
+    "file"
+  ],
+  "author": "Elvis Mao",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/Edit-Mr/embox/issues"
+  },
+  "homepage": "https://github.com/Edit-Mr/embox#readme",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mime-types": "^2.1.35",
+    "multer": "^1.4.5-lts.1"
+  }
+}
