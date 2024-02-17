@@ -4,6 +4,8 @@
 
 A simple node.js website to upload and download file.
 
+![demo](demo.png)
+
 ## Requirements
 
 - Node.js
