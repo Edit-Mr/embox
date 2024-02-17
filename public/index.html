@@ -1,20 +1,160 @@
 <!-- @format -->
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant">
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>File Sharing App</title>
+        <title>embox</title>
+        <style>
+            @import url("https://fonts.googleapis.com/css2?family=Quicksand&display=swap");
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            body {
+                height: 100vh;
+                background: #2f80ec;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 4em 2em;
+                font-family: "Quicksand", sans-serif;
+                font-optical-sizing: auto;
+            }
+            header {
+                position: fixed;
+                top: 0.5em;
+                left: 1em;
+                color: #ffffff95;
+                z-index: -1;
+            }
+            h1,
+            h2 {
+                display: inline-block;
+                font-weight: 400;
+                font-size: 2.5em;
+            }
+            h2 {
+                font-size: 1.2em;
+            }
+            main {
+                width: 100%;
+                height: 100%;
+                max-width: 1000px;
+                background: #ffffff;
+                border-radius: 1em;
+                display: flex;
+                box-shadow: rgba(0, 0, 0, 0.732) 0px 5px 15px 0px;
+            }
+
+            form,
+            #fileList {
+                flex: 1;
+                height: 100%;
+            }
+
+            input {
+                display: block;
+                width: 100%;
+            }
+
+            input {
+                display: none;
+            }
+
+            #drag {
+                width: 100%;
+                height: 100%;
+                display: block;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                cursor: pointer;
+            }
+            #drag:hover {
+                border: #2f80ec 3px dashed;
+                border-radius: 1em;
+            }
+            #fileList {
+                background: #fbfbfb;
+                border-radius: 0 1em 1em 0;
+                overflow-y: auto;
+                margin: 1em;
+                height: calc(100% - 2em);
+            }
+            .file {
+                display: flex;
+                align-items: center;
+                padding: 1em;
+                border-radius: 1em;
+                margin-bottom: 0.5em;
+                cursor: pointer;
+            }
+            .file:hover {
+                background: #f0f0f0;
+            }
+            a h3 {
+                margin-bottom: 0.5em;
+                font-size: 1rem;
+                font-weight: 400;
+                color: #000;
+                word-wrap: break-word;
+            }
+            .type {
+                background: #ecf3fe;
+                border: #3778cd 2px solid;
+                color: #3778cd;
+                width: 3rem;
+                height: 3rem;
+                font-size: 0.8rem;
+                border-radius: 50%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                text-transform: uppercase;
+                margin-right: 1.5em;
+                flex-shrink: 0;
+            }
+            .text p {
+                font-size: 0.8rem;
+                color: #666;
+            }
+            a {
+                text-decoration: none;
+            }
+            form {
+                padding: 1em;
+            }
+
+            @media (max-aspect-ratio: 1/1) {
+                main {
+                    flex-direction: column;
+                }
+                #fileList {
+                    border-radius: 0 0 1em 1em;
+                }
+                .file {
+                    border-radius: 1em;
+                }
+            }
+        </style>
     </head>
     <body>
-        <h1>Files in 'box' folder:</h1>
-        <ul id="fileList"></ul>
-        <form action="/upload" method="post" enctype="multipart/form-data">
-            <input type="file" name="file" />
-            <button type="submit">Upload File</button>
-        </form>
-
+        <header>
+            <h1>embox</h1>
+            <h2>A file system by Elvis Mao</h2>
+        </header>
+        <main>
+            <form action="/upload" method="post" enctype="multipart/form-data">
+                <input type="file" name="file" id="file" />
+                <label for="file" id="drag">Click to choose file or drag a file</label>
+                <input type="submit" />
+            </form>
+            <div id="fileList"></div>
+        </main>
         <script>
             // Fetch file list and render on the page
             fetch("/list")
@@ -24,22 +164,27 @@
                     fileList.innerHTML = files
                         .map(
                             file => `
-          <li>
-            <img src="/icons/${getFileExtension(
-                file.extension
-            )}" style="width: 20px; height: 20px;" />
-            <a href="/files/${file.file}" download>${file.file}</a>
-          </li>
-        `
+                                <a class="file" download href="box/${file.file}">
+                        <div class="type">${file.extension}</div>
+                        <div class="text">
+                            <h3>${file.file}</h3>
+                            <p>${file.size}</p>
+                        </div>
+                    </a>
+            `
                         )
                         .join("");
                 })
                 .catch(error => console.error("Error fetching files:", error));
 
-            // Function to get file extension
-            function getFileExtension(filename) {
-                return filename.split(".").pop() + ".png";
-            }
+            // Upload file
+            document
+                .getElementById("file")
+                .addEventListener("change", event => {
+                    console.log("Aaa");
+                    // press submit button
+                    event.target.parentElement.submit();
+                });
         </script>
     </body>
 </html>

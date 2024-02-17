@@ -14,13 +14,13 @@ const storage = multer.diskStorage({
         cb(null, "box/");
     },
     filename: function (req, file, cb) {
-        cb(null, file.originalname);
+        cb(null, Buffer.from(file.originalname, "latin1").toString("utf8"));
     },
 });
 const upload = multer({ storage: storage });
 
 // Serve files in the 'box' folder
-app.use("/files", express.static("box"));
+app.use("/box", express.static("box"));
 
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "public/index.html"));
@@ -32,15 +32,26 @@ app.get("/list", (req, res) => {
         if (err) {
             return res.status(500).send("Unable to read directory contents.");
         }
-        // Render HTML with file details
         let reply = files.map(file => ({
             extension: getFileExtension(file),
             file: file,
+            size: getFileSize(file),
         }));
-        console.log(reply.toString());
         res.send(reply);
     });
 });
+
+function getFileSize(filename) {
+    const stats = fs.statSync(path.join("box", filename));
+    // Convert file size to KB
+    var size = stats.size / 1024;
+    if (size < 1024) {
+        return size.toFixed(2) + " KB";
+    }
+    // Convert file size to MB
+    size = size / 1024;
+    return size.toFixed(2) + " MB";
+}
 
 // Handle file upload
 app.post("/upload", upload.single("file"), (req, res) => {
