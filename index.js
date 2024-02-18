@@ -36,6 +36,7 @@ app.get("/list", (req, res) => {
             extension: getFileExtension(file),
             file: file,
             size: getFileSize(file),
+            uploadDate: new Date(fs.statSync(path.join("box", file)).mtime).toUTCString(),
         }));
         res.send(reply);
     });
@@ -54,7 +55,7 @@ function getFileSize(filename) {
 }
 
 // Handle file upload
-app.post("/upload", upload.single("file"), (req, res) => {
+app.post("/upload", upload.array("file"), (req, res) => {
     res.redirect("/");
 });
 

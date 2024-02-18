@@ -8,8 +8,8 @@ const https = require("https");
 
 const app = express();
 
-var privateKey = fs.readFileSync(__dirname + "/ssl/private.key");
-var certificate = fs.readFileSync(__dirname + "/ssl/certificate.crt");
+var privateKey = fs.readFileSync(__dirname + "/ssl/privkey.pem");
+var certificate = fs.readFileSync(__dirname + "/ssl/fullchain.pem");
 
 // Set up multer for file upload
 const storage = multer.diskStorage({
@@ -39,6 +39,7 @@ app.get("/list", (req, res) => {
             extension: getFileExtension(file),
             file: file,
             size: getFileSize(file),
+            uploadDate: new Date(fs.statSync(path.join("box", file)).mtime).toUTCString(),
         }));
         res.send(reply);
     });
@@ -57,7 +58,7 @@ function getFileSize(filename) {
 }
 
 // Handle file upload
-app.post("/upload", upload.single("file"), (req, res) => {
+app.post("/upload", upload.array("file"), (req, res) => {
     res.redirect("/");
 });
 
@@ -68,4 +69,6 @@ function getFileExtension(filename) {
 
 var credentials = { key: privateKey, cert: certificate };
 var httpsServer = https.createServer(credentials, app);
-httpsServer.listen(443);
+httpsServer.listen(443, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+});
