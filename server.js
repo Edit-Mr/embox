@@ -69,6 +69,5 @@ function getFileExtension(filename) {
 
 var credentials = { key: privateKey, cert: certificate };
 var httpsServer = https.createServer(credentials, app);
-httpsServer.listen(443, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
+httpsServer.listen(443);
+console.log("embox Server running on port 443");
