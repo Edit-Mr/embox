@@ -9,18 +9,17 @@
     </head>
     <body>
         <script>
-            //get file name from url
             var url = new URL(window.location.href);
-            var filename = url.searchParams.get("filename");
+            var filename = url.searchParams.get("file");
             if (!filename) {
+                alert("Invalid filename");
                 window.location.href = "/";
             }
-            //ask for password
             var password = prompt(
                 "Please enter the password to download " + filename
             );
             window.location.href =
-                "/download?filename=" + filename + "&password=" + password;
+                "/box?file=" + filename + "&password=" + password;
         </script>
     </body>
 </html>

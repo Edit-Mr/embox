@@ -76,8 +76,7 @@
 
             #drag {
                 width: 100%;
-                height: 100%;
-                display: block;
+                flex: 1;
                 display: flex;
                 justify-content: center;
                 align-items: center;
@@ -152,7 +151,21 @@
                 --doc-color: 0;
             }
 
-            .zip, .rar, .tar, .gz, .bz2, .xz, .zst, .lz, .lz4, .lzip, .lzma, .lzo, .z, .dz, .zim{
+            .zip,
+            .rar,
+            .tar,
+            .gz,
+            .bz2,
+            .xz,
+            .zst,
+            .lz,
+            .lz4,
+            .lzip,
+            .lzma,
+            .lzo,
+            .z,
+            .dz,
+            .zim {
                 --doc-color: 40;
             }
             .text p {
@@ -164,6 +177,8 @@
             }
             form {
                 padding: 1em;
+                display: flex;
+                flex-direction: column;
             }
             #dragOver {
                 position: fixed;
@@ -182,7 +197,16 @@
                 transition: opacity 0.3s ease-out;
                 opacity: 0;
             }
-
+            #password {
+                display: block;
+            }
+            .setPassword>label{
+                margin-bottom: 0.5em;
+                display: block;
+            }
+            .setPassword {
+                padding: 1rem;
+            }
             @media (max-aspect-ratio: 1/1) {
                 main {
                     flex-direction: column;
@@ -207,6 +231,17 @@
                 <label for="file" id="drag"
                     >Click to choose files or drag files</label
                 >
+                <div class="setPassword">
+                    <label for="password"
+                        >Set File Password (Optional)</label
+                    >
+                    <input
+                        type="password"
+                        name="password"
+                        id="password"
+                        placeholder="Set file password (Optional)"
+                    />
+                </div>
                 <input type="submit" />
             </form>
             <div id="fileList"></div>
@@ -226,7 +261,7 @@
                     fileList.innerHTML = files
                         .map(
                             file => `
-                                <a class="file" download href="box/${
+                                <a class="file" href="box?file=${
                                     file.file
                                 }">
                         <div class="type ${file.extension}">${
@@ -249,7 +284,6 @@
             document
                 .getElementById("file")
                 .addEventListener("change", event => {
-                    console.log("Aaa");
                     // press submit button
                     event.target.parentElement.submit();
                 });
@@ -271,6 +305,7 @@
                 const file = event.dataTransfer.files[0];
                 const formData = new FormData();
                 formData.append("file", file);
+                formData.append("password", document.getElementById("password").value);
                 fetch("/upload", {
                     method: "POST",
                     body: formData,

@@ -1,16 +1,16 @@
 /** @format */
 
 const express = require("express");
+const bodyParser = require("body-parser");
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-let password = "password";
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-// Set up multer for file upload
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, "box/");
@@ -22,12 +22,19 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage }).array("file");
 
-// when ask for file in box folder via url, ask for password to download
-app.get("/box/*", (req, res) => {
-    if (req.query.password === password) {
-        res.sendFile(path.join(__dirname, req.url));
-    } else {
-        res.status(403).send("Access denied");
+app.get("/box", (req, res) => {
+    var file = req.query.file;
+    if (file === undefined || file === "") {
+        res.redirect("/");
+        return;
+    }
+    var password = require("./password.json")[file];
+    console.log(password);
+    if (password === undefined || req.query.password === password)
+        res.sendFile(path.join(__dirname, "box", file));
+    else {
+        console.log("wrong");
+        res.sendFile(path.join(__dirname + "/public/download.html"));
     }
 });
 
@@ -35,7 +42,6 @@ app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "public/index.html"));
 });
 
-// List all files in the 'box' folder
 app.get("/list", (req, res) => {
     fs.readdir("box", (err, files) => {
         if (err) {
@@ -54,8 +60,23 @@ app.get("/list", (req, res) => {
 });
 
 // Handle file upload
-app.post("/upload", upload.array("file"), (req, res) => {
-    res.redirect("/");
+app.post("/upload", (req, res) => {
+    upload(req, res, function (err) {
+        if (err) return res.status(500).send("Error uploading file.");
+        let password = req.body.password;
+        if (password !== "") {
+            var passwordFile = require("./password.json");
+            req.files.forEach(file => {
+                passwordFile[file.originalname] = password;
+            });
+        }
+        fs.writeFileSync(
+            "password.json",
+            JSON.stringify(passwordFile, null, 4),
+            "utf8"
+        );
+        res.redirect("/");
+    });
 });
 
 // Function to get file extension
