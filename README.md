@@ -28,14 +28,14 @@ A simple node.js website to upload and download file.
 
 ## Installation
 
+> clone from realease for static version
+
 ```bash
 git clone https://github.com/Edit-Mr/embox.git
 cd embox
 npm install
 node index.js
 ```
-
-> server.js is the version with SSL support, you can use it if you have a SSL certificate.
 
 ## API
 

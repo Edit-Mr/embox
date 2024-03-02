@@ -8,6 +8,8 @@ const path = require("path");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+let password = "password";
+
 // Set up multer for file upload
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -17,10 +19,17 @@ const storage = multer.diskStorage({
         cb(null, Buffer.from(file.originalname, "latin1").toString("utf8"));
     },
 });
-const upload = multer({ storage: storage });
 
-// Serve files in the 'box' folder
-app.use("/box", express.static("box"));
+const upload = multer({ storage: storage }).array("file");
+
+// when ask for file in box folder via url, ask for password to download
+app.get("/box/*", (req, res) => {
+    if (req.query.password === password) {
+        res.sendFile(path.join(__dirname, req.url));
+    } else {
+        res.status(403).send("Access denied");
+    }
+});
 
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "public/index.html"));
@@ -36,11 +45,23 @@ app.get("/list", (req, res) => {
             extension: getFileExtension(file),
             file: file,
             size: getFileSize(file),
-            uploadDate: new Date(fs.statSync(path.join("box", file)).mtime).toUTCString(),
+            uploadDate: new Date(
+                fs.statSync(path.join("box", file)).mtime
+            ).toUTCString(),
         }));
         res.send(reply);
     });
 });
+
+// Handle file upload
+app.post("/upload", upload.array("file"), (req, res) => {
+    res.redirect("/");
+});
+
+// Function to get file extension
+function getFileExtension(filename) {
+    return filename.split(".").pop();
+}
 
 function getFileSize(filename) {
     const stats = fs.statSync(path.join("box", filename));
@@ -52,16 +73,6 @@ function getFileSize(filename) {
     // Convert file size to MB
     size = size / 1024;
     return size.toFixed(2) + " MB";
-}
-
-// Handle file upload
-app.post("/upload", upload.array("file"), (req, res) => {
-    res.redirect("/");
-});
-
-// Function to get file extension
-function getFileExtension(filename) {
-    return filename.split(".").pop();
 }
 
 app.listen(PORT, () => {
