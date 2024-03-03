@@ -28,8 +28,6 @@ A simple node.js website to upload and download file.
 
 ## Installation
 
-> clone from realease for static version
-
 ```bash
 git clone https://github.com/Edit-Mr/embox.git
 cd embox
