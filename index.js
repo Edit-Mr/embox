@@ -20,7 +20,28 @@ const storage = multer.diskStorage({
     },
 });
 
-const upload = multer({ storage: storage }).array("file");
+const upload = multer({
+    storage: storage,
+    fileFilter: (req, file, cb) => {
+        let filePath = path.resolve(__dirname, "box", file.originalname);
+        if (fs.existsSync(filePath)) {
+            let count = 1;
+            let newFileName = file.originalname;
+            while (fs.existsSync(filePath)) {
+                const extension = path.extname(file.originalname);
+                const fileNameWithoutExtension = path.basename(
+                    file.originalname,
+                    extension
+                );
+                newFileName = `${fileNameWithoutExtension}_${count}${extension}`;
+                filePath = path.resolve(__dirname, "box", newFileName);
+                count++;
+            }
+            file.originalname = newFileName;
+        }
+        cb(null, true);
+    },
+}).array("file");
 
 app.get("/box", (req, res) => {
     var file = req.query.file;
@@ -76,13 +97,33 @@ app.post("/upload", (req, res) => {
         if (password !== "") {
             var passwordFile = require("./password.json");
             req.files.forEach(file => {
-                passwordFile[file.originalname] = password;
+                let realFileName = file.originalname; // Store the real original file name
+                let newFileName = realFileName; // Initialize new file name with real original file name
+                if (
+                    fs.existsSync(path.resolve(__dirname, "box", realFileName))
+                ) {
+                    let count = 1;
+                    while (
+                        fs.existsSync(
+                            path.resolve(__dirname, "box", newFileName)
+                        )
+                    ) {
+                        const extension = path.extname(realFileName);
+                        const fileNameWithoutExtension = path.basename(
+                            realFileName,
+                            extension
+                        );
+                        newFileName = `${fileNameWithoutExtension}_${count}${extension}`;
+                        count++;
+                    }
+                }
+                passwordFile[realFileName] = password; // Use the real original file name as key
+                fs.writeFileSync(
+                    "password.json",
+                    JSON.stringify(passwordFile, null, 4),
+                    "utf8"
+                );
             });
-            fs.writeFileSync(
-                "password.json",
-                JSON.stringify(passwordFile, null, 4),
-                "utf8"
-            );
         }
         res.redirect("/");
     });
