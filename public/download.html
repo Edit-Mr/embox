@@ -16,12 +16,13 @@
                 align-items: center;
                 height: 100vh;
                 background-color: light-dark(#2f80ec, hsl(214, 83%, 15%));
-                color: light-dark(#121212,#f5f5f5);
+                color: #f5f5f5;
                 flex-direction: column;
             }
         </style>
     </head>
-    <body><h1>embox</h1>
+    <body>
+        <h1>embox</h1>
         <script>
             var url = new URL(window.location.href);
             var filename = url.searchParams.get("file");
@@ -32,6 +33,10 @@
             var password = prompt(
                 "Please enter the password to download " + filename
             );
+            // if nothing enter redirect to home
+            if (!password) {
+                window.location.href = "/";
+            }
             fetch(`/box?file=${filename}&password=${password}`).then(
                 response => {
                     if (
@@ -48,7 +53,8 @@
                             a.href = url;
                             a.download = filename;
                             a.click();
-                            document.body.innerHTML = "<h1>下載成功！</h1>embox by Elvis Mao";
+                            document.body.innerHTML =
+                                "<h1>下載成功！</h1>embox by Elvis Mao";
                         });
                     }
                 }

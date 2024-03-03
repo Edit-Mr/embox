@@ -28,13 +28,22 @@ app.get("/box", (req, res) => {
         res.redirect("/");
         return;
     }
-    var password = require("./password.json")[file];
-    console.log(password);
-    if (password === undefined || req.query.password === password)
-        res.sendFile(path.join(__dirname, "box", file));
-    else {
-        console.log("wrong");
-        res.sendFile(path.join(__dirname + "/public/download.html"));
+    const normalizedFilePath = path.resolve(__dirname, "box", file);
+    const boxDirectory = path.resolve(__dirname, "box");
+    if (!normalizedFilePath.startsWith(boxDirectory)) {
+        res.status(403).send("What are you trying to do?");
+        return;
+    }
+    //check if file exist
+    if (!fs.existsSync(normalizedFilePath)) {
+        res.status(404).send("File not found.");
+        return;
+    }
+    var password = require("./password.json")[file.split("/").pop()];
+    if (password === undefined || req.query.password === password) {
+        res.sendFile(normalizedFilePath);
+    } else {
+        res.sendFile(path.resolve(__dirname, "public", "download.html"));
     }
 });
 
@@ -69,12 +78,12 @@ app.post("/upload", (req, res) => {
             req.files.forEach(file => {
                 passwordFile[file.originalname] = password;
             });
+            fs.writeFileSync(
+                "password.json",
+                JSON.stringify(passwordFile, null, 4),
+                "utf8"
+            );
         }
-        fs.writeFileSync(
-            "password.json",
-            JSON.stringify(passwordFile, null, 4),
-            "utf8"
-        );
         res.redirect("/");
     });
 });
